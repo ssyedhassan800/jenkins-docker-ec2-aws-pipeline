@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         CONTAINER_NAME = 'my-nest-app-container'
-        DOCKER_IMAGE = 'NESTJS-image'
+        DOCKER_IMAGE = 'nestjs-image'
         DOCKER_TAG = 'latest'
         EMAIL = 'ssyedhassan800@gmail.com'
         PORT = '3000'
