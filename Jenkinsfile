@@ -1,4 +1,5 @@
-pipeline{
+
+pipeline {
     agent any
 
     environment {
@@ -7,46 +8,43 @@ pipeline{
         DOCKER_TAG = 'latest'
         EMAIL = 'ssyedhassan800@gmail.com'
         PORT = '3000'
-
-        stages{
-            stage('clone repo') {
-                steps {
-                    git branch: 'main', url: 'https://github.com/ssyedhassan800/jenkins-docker-ec2-aws-pipeline'
-                }
-            }
-            stage('build docker image') {
-                steps {
-                    script {
-                        sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                    }
-                }
-            }
-            stage('stop and remove existing container') {
-                steps {
-                    script {
-                        sh "docker stop ${CONTAINER_NAME} || true"
-                        sh "docker rm ${CONTAINER_NAME} || true"
-                    }
-                }
-            }
-            stage('run docker container') {
-                steps {
-                    script {
-                        sh "docker run -d --name ${CONTAINER_NAME} -p ${PORT}:${PORT} ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                    }
-                }
-            }
-            stage('send email notification') {
-                steps {
-                    script {
-                        emailext (
-                            subject: "Jenkins Pipeline Notification",
-                            body: "The Jenkins pipeline has completed successfully.",
-                            to: "${EMAIL}"
-                        )
-                    }
-                }
-            }
     }
 
+    stages {
+        stage('clone repo') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/ssyedhassan800/jenkins-docker-ec2-aws-pipeline'
+            }
+        }
+
+        stage('build docker image') {
+            steps {
+                sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+            }
+        }
+
+        stage('stop and remove existing container') {
+            steps {
+                sh "docker stop ${CONTAINER_NAME} || true"
+                sh "docker rm ${CONTAINER_NAME} || true"
+            }
+        }
+
+        stage('run docker container') {
+            steps {
+                sh "docker run -d --name ${CONTAINER_NAME} -p ${PORT}:${PORT} ${DOCKER_IMAGE}:${DOCKER_TAG}"
+            }
+        }
+
+        stage('send email notification') {
+            steps {
+                emailext(
+                    subject: 'Jenkins Pipeline Notification',
+                    body: 'The Jenkins pipeline has completed successfully.',
+                    to: "${EMAIL}"
+                )
+            }
+        }
+    }
 }
